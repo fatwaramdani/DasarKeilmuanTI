@@ -1,3 +1,7 @@
+#########
+# BAB 6 #
+#########
+
 #Gambar 6.1 Ilustrasi metode Waterfall.
 # Load required libraries
 library(ggplot2)
