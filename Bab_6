@@ -1,0 +1,376 @@
+#Gambar 6.1 Ilustrasi metode Waterfall.
+# Load required libraries
+library(ggplot2)
+library(grid)
+
+# Define the Waterfall method steps
+steps <- c("Perencanaan", "Analisis kebutuhan", "Desain", "Pengembangan", "Pengujian", "Pemeliharaan")
+x_positions <- seq(from = 1, to = length(steps))
+y_positions <- seq(from = 6, to = 1, by = -1)
+
+# Create a data frame for the steps and their positions
+data <- data.frame(
+  Step = steps,
+  x = x_positions,
+  y = y_positions
+)
+
+# Create a data frame for elbow arrows
+arrows <- data.frame(
+  x_start = c(1, 2, 3, 4, 5),        # Start x of each arrow
+  x_end = c(1, 2, 3, 4, 5),          # End x of vertical part
+  y_start = c(6, 5, 4, 3, 2),        # Start y of each arrow
+  y_end = c(5, 4, 3, 2, 1)           # End y of vertical part
+)
+
+# Plot the waterfall diagram with professional styling
+ggplot() +
+  # Add elbow arrows (vertical segments)
+  geom_segment(data = arrows, aes(x = x_start, xend = x_end, y = y_start, yend = y_end),
+               arrow = arrow(length = unit(0.25, "cm"), type = "closed"), color = "#0073C2", size = 1.2) +
+  # Add elbow arrows (horizontal segments)
+  geom_segment(data = arrows, aes(x = x_end, xend = x_end + 1, y = y_end, yend = y_end),
+               arrow = arrow(length = unit(0.25, "cm"), type = "closed"), color = "#0073C2", size = 1.2) +
+  # Add rectangles for each step
+  geom_rect(data = data, aes(xmin = x - 0.5, xmax = x + 0.5, ymin = y - 0.25, ymax = y + 0.25),
+            fill = "#E6F7FF", color = "#0073C2", alpha = 1, size = 1) +
+  # Add labels for each step
+  geom_text(data = data, aes(x = x, y = y, label = Step), fontface = "bold", color = "#003366", size = 6) +
+  # Customize the plot
+  theme_minimal(base_size = 16) +
+  labs(title = "", x = NULL, y = NULL) +
+  theme(
+    axis.ticks = element_blank(),
+    axis.text = element_blank(),
+    panel.grid = element_blank(),
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 18, color = "#003366"),
+    plot.background = element_rect(fill = "#F9F9F9", color = NA)
+  )
+
+
+#Gambar 6.2 Ilustrasi metode Agile.
+# Load required libraries
+library(ggplot2)
+library(dplyr)
+
+# Define Agile phases and positions
+agile_phases <- data.frame(
+  phase = c("Konsep", "Desain", "Develop", "Test", "Release"),
+  angle = seq(0, 2 * pi, length.out = 6)[-6],       # Position angles (radians)
+  x = cos(seq(0, 2 * pi, length.out = 6)[-6]) * 1.5, # X-coordinates (scaled)
+  y = sin(seq(0, 2 * pi, length.out = 6)[-6]) * 1.5  # Y-coordinates (scaled)
+)
+
+# Function to create arc data for curved arrows
+create_arc <- function(x1, y1, x2, y2, curvature = 1, steps = 100) {
+  t <- seq(0, 1, length.out = steps)
+  xm <- (x1 + x2) / 2
+  ym <- (y1 + y2) / 2
+  dx <- y2 - y1
+  dy <- -(x2 - x1)
+  control_x <- xm + curvature * dx * 0.5
+  control_y <- ym + curvature * dy * 0.5
+  bezier_x <- (1 - t)^2 * x1 + 2 * (1 - t) * t * control_x + t^2 * x2
+  bezier_y <- (1 - t)^2 * y1 + 2 * (1 - t) * t * control_y + t^2 * y2
+  data.frame(x = bezier_x, y = bezier_y)
+}
+
+# Generate arc data for transitions
+arc_list <- list()
+for (i in 1:nrow(agile_phases)) {
+  next_i <- ifelse(i == nrow(agile_phases), 1, i + 1) # Wrap to first phase
+  arc_data <- create_arc(
+    agile_phases$x[i], agile_phases$y[i],
+    agile_phases$x[next_i], agile_phases$y[next_i],
+    curvature = 0.6
+  )
+  arc_data$group <- i
+  arc_list[[i]] <- arc_data
+}
+arcs <- do.call(rbind, arc_list)
+
+# Define colors for phases
+phase_colors <- c("skyblue", "orange", "lightgreen", "purple", "red")
+
+# Create the plot
+agile_plot <- ggplot() +
+  # Add curved arcs with arrows
+  geom_path(data = arcs, aes(x, y, group = group), color = "darkgray", size = 2,
+            arrow = arrow(length = unit(1, "cm"), type = "closed")) +
+  # Add phase labels
+  geom_text(data = agile_phases, aes(x, y, label = phase), vjust = -1.2, hjust= 0.8, size = 10, fontface = "bold", color = "black") +
+  # Plot the phases as colored points
+  geom_point(data = agile_phases, aes(x, y), size = 8, color = "black", fill = phase_colors, shape = 21) +
+  # Add a title
+  ggtitle("") +
+  # Customize theme for aesthetics
+  coord_fixed() + # Keeps the aspect ratio circular
+  theme_void() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 18, face = "bold", margin = margin(b = 20),)
+  )
+
+# Display the plot
+print(agile_plot)
+
+
+#Gambar 6.3 Ilustrasi metode DevOps.
+library(ggplot2)
+library(ggforce)
+library(grid)
+
+# Create the data for the cycle steps
+steps <- data.frame(
+  x = c(1, 2, 3, 4, 3, 2, 1),
+  y = c(4, 3, 2, 3, 4, 5, 4),
+  label = c("Plan", "Develop", "Build", "Test", "Release", "Deploy", "Operate")
+)
+
+# Adjust positions to avoid overlap
+steps$y[1] <- 4.2  # Move "Plan" slightly upward
+steps$y[7] <- 3.8  # Move "Operate" slightly downward
+
+# Add colors for each step
+steps$color <- c("#1f78b4", "#33a02c", "#ff7f00", "#e31a1c", "#6a3d9a", "#a6cee3", "#b15928")
+
+# Define arrow positions for connecting the steps
+arrows <- data.frame(
+  xstart = c(1, 2, 3, 4, 3, 2, 1),
+  xend = c(2, 3, 4, 3, 2, 1, 1),
+  ystart = c(4, 3, 2, 3, 4, 5, 4),
+  yend = c(3, 2, 3, 4, 5, 4, 4)
+)
+
+# Create the DevOps infinity background shape
+infinity_shape <- data.frame(
+  x = c(1, 2, 3, 4, 3, 2, 1),
+  y = c(4, 3, 2, 3, 4, 5, 4),
+  group = rep(1, 7)
+)
+
+# Plot the DevOps model
+ggplot() +
+  # Draw the infinity loop as a smooth curve
+  geom_bspline(aes(x = x, y = y, group = group), data = infinity_shape,
+               size = 2, color = "#cccccc") +
+  
+  # Add arrows connecting the steps
+  geom_segment(data = arrows, aes(x = xstart, xend = xend, y = ystart, yend = yend),
+               arrow = arrow(length = unit(0.3, "cm")),
+               color = "#666666", size = 1) +
+  
+  # Add circular nodes for each step
+  geom_point(data = steps, aes(x = x, y = y, fill = color),
+             size = 12, shape = 21, color = "black") +
+  
+  # Add text labels for each step
+  geom_text(data = steps, aes(x = x, y = y, label = label),
+            size = 8, fontface = "bold", color = "black") +
+  
+  # Customize the theme
+  theme_void() +
+  theme(
+    plot.background = element_rect(fill = "#f0f0f0", color = NA),
+    plot.title = element_text(hjust = 0.5, size = 18, face = "bold", color = "#333333"),
+    plot.caption = element_text(hjust = 0.5, size = 10, color = "#555555"),
+    legend.position = "none"
+  ) +
+  
+  # Add a title and caption
+  labs(
+    title = "DevOps Continuous Cycle",
+    caption = "An illustration of the DevOps process: Plan, Develop, Build, Test, Release, Deploy, and Operate."
+  )
+
+
+#Gambar 6.4 Ilustrasi metode RAD.
+# Install required packages
+if (!require("DiagrammeR")) install.packages("DiagrammeR", dependencies = TRUE)
+
+# Load the library
+library(DiagrammeR)
+
+# Create the RAD model diagram
+rad_diagram <- grViz("
+digraph RAD_Model {
+  graph [layout = dot, rankdir = TB, fontname = Helvetica, fontsize = 12]
+
+  # Node styling
+  node [shape = oval, style = filled, fillcolor = lightblue, fontcolor = black, penwidth = 2]
+  
+  # Phases of the RAD model
+  A [label = 'Requirements Planning' fillcolor = coral]
+  B [label = 'User Design']
+  C [label = 'Construction']
+  D [label = 'Cutover']
+
+  # Connections between phases
+  A -> B [arrowhead = normal, color = gray, penwidth = 2]
+  B -> C [arrowhead = normal, color = gray, penwidth = 2]
+  C -> D [arrowhead = normal, color = gray, penwidth = 2]
+  D -> A [arrowhead = normal, color = gray, penwidth = 2]
+
+  # Iterative and fast feedback
+  subgraph cluster_feedback {
+    label = 'Iterative Feedback & Fast Development';
+    style = dashed;
+    color = gray;
+    fontname = Helvetica;
+    fontsize = 10;
+    B -> A [arrowhead = inv, style = dashed, color = gray, penwidth = 1]
+  }
+}
+")
+
+# Render the diagram
+rad_diagram
+
+#Gambar 6.5 Ilustrasi metode Prototipe.
+# Install and load the DiagrammeR package
+if (!require(DiagrammeR)) {
+  install.packages("DiagrammeR")
+}
+library(DiagrammeR)
+
+# Create the Prototype Model Diagram
+grViz("
+digraph prototype_model {
+  graph [layout = dot, rankdir = LR, fontsize = 24]
+  
+  node [shape = box, style = filled, fillcolor = lightblue, fontname = Helvetica, fontsize = 20]
+  
+  // Define nodes
+  start [label = 'Start', shape = ellipse, fillcolor = lightgreen]
+  requirements [label = 'Gather Requirements', width = 2.5]
+  prototype [label = 'Develop Prototype', width = 2.5]
+  user_feedback [label = 'User Feedback', width = 2.5]
+  refine_prototype [label = 'Refine Prototype', width = 2.5]
+  final_product [label = 'Final Product Development', fillcolor = lightcoral]
+  end [label = 'End', shape = ellipse, fillcolor = lightgreen]
+  
+  // Define edges
+  start -> requirements [label = 'Initial Phase']
+  requirements -> prototype [label = 'Create Initial Prototype']
+  prototype -> user_feedback [label = 'Show to Users']
+  user_feedback -> refine_prototype [label = 'Improve Prototype']
+  refine_prototype -> final_product [label = 'Finalize Product']
+  final_product -> end [label = 'Product Ready']
+  
+  // Customizing edges with arrowheads and colors
+  edge [color = darkgrey, arrowhead = vee]
+  start -> requirements
+  requirements -> prototype
+  prototype -> user_feedback
+  user_feedback -> refine_prototype
+  refine_prototype -> final_product
+  final_product -> end
+}
+")
+
+#Gambar 6.6 Ilustrasi metode Iterative.
+# Load necessary library
+library(ggplot2)
+library(ggforce)
+
+# Define a custom theme for a clean and professional look
+theme_custom <- theme(
+  plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+  axis.title = element_blank(),
+  axis.text = element_blank(),
+  axis.ticks = element_blank(),
+  panel.background = element_blank(),
+  panel.grid = element_blank(),
+  plot.background = element_rect(fill = "white", color = "white")
+)
+
+# Create a data frame for the Iterative model steps
+steps <- data.frame(
+  x = c(1, 2, 3, 4, 5),
+  y = c(1, 1, 1, 1, 1),
+  label = c("Requirement", "Design", "Implementation", "Testing", "Deployment"),
+  angle = c(0, 45, 90, 135, 180)
+)
+
+# Create the base plot with circles and arrows representing the iterative process
+ggplot() +
+  # Draw the steps with circles
+  geom_circle(aes(x0 = steps$x, y0 = steps$y, r = 0.3), fill = "#1f77b4", color = "white", size = 1.5) +
+  # Add labels to the steps
+  geom_text(aes(x = steps$x, y = steps$y, label = steps$label), color = "white", size = 8, fontface = "bold") +
+  # Add arrows between the steps
+  geom_curve(aes(x = 1.3, y = 1, xend = 1.7, yend = 1), arrow = arrow(type = "closed", length = unit(0.15, "inches")), size = 1, color = "#1f77b4") +
+  geom_curve(aes(x = 2.3, y = 1, xend = 2.7, yend = 1), arrow = arrow(type = "closed", length = unit(0.15, "inches")), size = 1, color = "#1f77b4") +
+  geom_curve(aes(x = 3.3, y = 1, xend = 3.7, yend = 1), arrow = arrow(type = "closed", length = unit(0.15, "inches")), size = 1, color = "#1f77b4") +
+  geom_curve(aes(x = 4.3, y = 1, xend = 4.7, yend = 1), arrow = arrow(type = "closed", length = unit(0.15, "inches")), size = 1, color = "#1f77b4") +
+  # Add a central circle showing iterative nature
+  geom_circle(aes(x0 = 2.5, y0 = 1.2, r = 0.5), fill = "gray", color = "white", size = 1.5, alpha = 0.2) +
+  # Add central label
+  geom_text(aes(x = 2.5, y = 1.2, label = "Iterative Process"), color = "black", size = 8, fontface = "italic") +
+  # Apply custom theme
+  theme_custom +
+  # Add title
+  ggtitle("")
+
+
+#Gambar 6.7 Ilustrasi siklus hidup perangkat lunak.
+library(ggplot2)
+library(ggforce)
+library(dplyr)
+
+# Define the SDLC phases and positions on the circle
+sdlc_phases <- data.frame(
+  phase = c("Planning", "Analysis", "Design", "Implementation", "Testing", "Deployment", "Maintenance"),
+  angle = seq(0, 2 * pi, length.out = 8)[-8], # Positions on the circle
+  color = c("#66c2a5", "#fc8d62", "#8da0cb", "#e78ac3", "#a6d854", "#ffd92f", "#e5c494")
+)
+
+# Create points for the circular flowchart
+circle_points <- sdlc_phases %>%
+  mutate(
+    x = cos(angle),
+    y = sin(angle),
+    label_x = 0.8 * cos(angle), # Adjust label position
+    label_y = 1.2 * sin(angle)
+  )
+
+# Create arrows for transitions between phases
+arrow_data <- data.frame(
+  x_start = circle_points$x,
+  y_start = circle_points$y,
+  x_end = c(circle_points$x[-1], circle_points$x[1]),
+  y_end = c(circle_points$y[-1], circle_points$y[1])
+)
+
+# Plot the SDLC model
+ggplot() +
+  # Add phase circles
+  geom_point(
+    data = circle_points,
+    aes(x = x, y = y, color = phase),
+    size = 8
+  ) +
+  # Add arrows between phases
+  geom_segment(
+    data = arrow_data,
+    aes(x = x_start, y = y_start, xend = x_end, yend = y_end),
+    arrow = arrow(type = "closed", length = unit(0.5, "cm")),
+    size = 0.5,
+    color = "#666666"
+  ) +
+  # Add phase labels
+  geom_text(
+    data = circle_points,
+    aes(x = label_x, y = label_y, label = phase),
+    size = 9,
+    fontface = "bold"
+  ) +
+  # Customize colors for phases
+  scale_color_manual(values = circle_points$color) +
+  # Add a title
+  ggtitle("") +
+  # Theme customization
+  theme_void() +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold")
+  )
