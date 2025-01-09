@@ -1,0 +1,82 @@
+
+
+# Gambar 8. Ilustrasi data vector titik, garis, dan poligon (area)
+# Load libraries
+library(ggplot2)
+library(sf)
+library(dplyr)
+
+# Create multiple points
+points <- st_sf(
+  geometry = st_sfc(
+    st_point(c(139.6917, 35.6895)), # Tokyo
+    st_point(c(139.6925, 35.6905)), # Nearby point 1
+    st_point(c(139.6935, 35.6885)), # Nearby point 2
+    st_point(c(139.6950, 35.6890))  # Nearby point 3
+  ),
+  crs = 4326
+)
+
+# Add labels to points
+points$label <- paste0(
+  "(", round(st_coordinates(points)[, 1], 4), ", ",
+  round(st_coordinates(points)[, 2], 4), ")"
+)
+
+# Create an "L"-shaped line
+line <- st_sfc(
+  st_linestring(matrix(c(
+    139.6917, 35.6895,  # Start point
+    139.6917, 35.6920,  # Vertical segment
+    139.6937, 35.6920   # Horizontal segment
+  ), ncol = 2, byrow = TRUE)),
+  crs = 4326
+)
+
+# Create a hexagon polygon
+hexagon_coords <- matrix(c(
+  139.6917, 35.6895,
+  139.6927, 35.6905,
+  139.6927, 35.6915,
+  139.6917, 35.6925,
+  139.6907, 35.6915,
+  139.6907, 35.6905,
+  139.6917, 35.6895  # Closing the hexagon
+), ncol = 2, byrow = TRUE)
+
+polygon <- st_sfc(st_polygon(list(hexagon_coords)), crs = 4326)
+
+# Convert all geometries to `sf` objects for plotting
+line_sf <- st_sf(geometry = line)
+polygon_sf <- st_sf(geometry = polygon)
+
+# Plot all layers together
+ggplot() +
+  # Add polygon
+  geom_sf(data = polygon_sf, fill = "lightblue", color = "blue", alpha = 0.5) +
+  # Add line
+  geom_sf(data = line_sf, color = "black", size = 1.2) +
+  # Add points
+  geom_sf(data = points, color = "red", size = 3) +
+  # Add labels for points
+  geom_text(data = points, 
+            aes(x = st_coordinates(points)[, 1], 
+                y = st_coordinates(points)[, 2], 
+                label = label), 
+            color = "black", size = 4, hjust = -0.2, vjust = -1) +
+  # Add titles and labels
+  labs(
+    title = "",
+    subtitle = "",
+    x = "Longitude",
+    y = "Latitude",
+    caption = ""
+  ) +
+  # Set theme
+  theme_minimal(base_size = 15) +
+  theme(
+    plot.title = element_text(size = 18, face = "bold"),
+    plot.subtitle = element_text(size = 14),
+    plot.caption = element_text(size = 10),
+    legend.position = "none"
+  )
