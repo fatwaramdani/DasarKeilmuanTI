@@ -82,3 +82,39 @@ ggplot() +
     plot.caption = element_text(size = 10),
     legend.position = "none"
   )
+
+
+#Gambar 8.
+# Load necessary libraries
+library(raster)
+library(ggplot2)
+
+# Generate a random raster (10x10 grid with random values between 0 and 1)
+nrows <- 10
+ncols <- 10
+random_raster <- raster(matrix(runif(nrows * ncols, min = 0, max = 1), nrow = nrows))
+
+# Convert the raster object to a data frame for ggplot
+raster_df <- as.data.frame(random_raster, xy = TRUE)
+colnames(raster_df) <- c("x", "y", "value")  # Rename columns for better readability
+
+# Create a ggplot visualization of the raster
+raster_plot <- ggplot(raster_df, aes(x = x, y = y, fill = value)) +
+  geom_tile() +  # Create a tiled plot
+  scale_fill_gradient(low = "white", high = "black", name = "Value") +  # Color scale
+  coord_fixed(ratio = 1) +  # Ensure square pixels
+  labs(
+    title = "Random Raster Visualization",
+    caption = "Generated using R"
+  ) +  # Add title and caption
+  theme_minimal(base_size = 18) +  # Clean theme with larger text size
+  theme(
+    axis.text = element_blank(),  # Remove axis text
+    axis.title = element_blank(),  # Remove axis titles
+    panel.grid = element_blank(),  # Remove grid lines
+    plot.title = element_text(hjust = 0.5, face = "bold"),  # Center and bold title
+    legend.position = "right"  # Place legend on the right
+  )
+
+# Print the plot
+print(raster_plot)
