@@ -1,0 +1,30 @@
+# Load necessary libraries
+library(ggplot2)
+library(ggforce)
+
+# Create data for circles (representing Computational Thinking and Critical Thinking)
+circles <- data.frame(
+  x = c(0, 1.5),
+  y = c(0, 0),
+  r = c(1.5, 1.5), # radii for the circles
+  label = c("Berpikir Komputasi", "Berpikir Kritis")
+)
+
+# Plot the Venn diagram
+ggplot() +
+  # Add circles
+  geom_circle(data = circles, aes(x0 = x, y0 = y, r = r, fill = label), alpha = 0.3, color = "black") +
+  # Annotate the overlapping area
+  annotate("text", x = 0.75, y = 0.5, label = "Pemecahan Masalah\nLogika & Analisis", size = 5, fontface = "bold") +
+  # Annotate individual areas
+  annotate("text", x = -0.7, y = 0.5, label = "Kemampuan Kognitif\nBerpikir Runtut\nAutomasi\nTeroganisir", size = 5) +
+  annotate("text", x = 2.4, y = 0.5, label = "Kreativitas\nEvaluasi\nSosial\nEkonomi\nEtika", size = 5) +
+  # Style the plot
+  scale_fill_manual(values = c("skyblue", "lightgreen")) +
+  labs(title = "Illustrating Computational Thinking & Critical Thinking",
+       subtitle = "An overlap of problem-solving and analysis skills") +
+  theme_void() +
+  theme(legend.position = "bottom",
+        legend.title = element_blank(),
+        plot.title = element_text(size = 14, face = "bold", hjust = 0.5),
+        plot.subtitle = element_text(size = 12, hjust = 0.5))
