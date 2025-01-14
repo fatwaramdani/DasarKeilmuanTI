@@ -1,6 +1,8 @@
+##########
+# BAB 11 #
+##########
 
-
-Gambar 12.1 Ilustrasi hubungan antara internet, ponsel cerdas, dan media sosial. 
+# Gambar 12.1 Ilustrasi hubungan antara internet, ponsel cerdas, dan media sosial. 
 # Install dan muat paket yang diperlukan
 if (!requireNamespace("ggplot2", quietly = TRUE)) install.packages("ggplot2")
 if (!requireNamespace("ggrepel", quietly = TRUE)) install.packages("ggrepel")
