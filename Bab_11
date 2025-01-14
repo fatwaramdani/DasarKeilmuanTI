@@ -1,3 +1,8 @@
+##########
+# BAB 11 #
+##########
+
+#Gambar 11.1 Ilustrasi hubungan antara berpikir komputasi dan kritis.
 # Load necessary libraries
 library(ggplot2)
 library(ggforce)
