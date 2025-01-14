@@ -1,0 +1,57 @@
+
+
+Gambar 12.1 Ilustrasi hubungan antara internet, ponsel cerdas, dan media sosial. 
+# Install dan muat paket yang diperlukan
+if (!requireNamespace("ggplot2", quietly = TRUE)) install.packages("ggplot2")
+if (!requireNamespace("ggrepel", quietly = TRUE)) install.packages("ggrepel")
+
+library(ggplot2)
+library(ggrepel)
+
+# Definisikan node dan edge untuk diagram alir
+node <- data.frame(
+  id = c("Internet", "Ponsel Cerdas", "Media Sosial"),
+  x = c(0, 2, 4),
+  y = c(3, 5, 3)
+)
+
+edge <- data.frame(
+  dari = c("Internet", "Ponsel Cerdas", "Ponsel Cerdas"),
+  ke = c("Ponsel Cerdas", "Media Sosial", "Internet"),
+  label = c("Memungkinkan", "Menghubungkan", "Sinkronisasi"),
+  nudge_y = c(0.3, 0.2, -0.3) # Penyesuaian jarak vertikal untuk masing-masing label
+)
+
+# Plot diagram alir
+plot <- ggplot() +
+  # Tambahkan edge (panah)
+  geom_curve(data = edge, aes(x = node$x[match(dari, node$id)], 
+                              y = node$y[match(dari, node$id)], 
+                              xend = node$x[match(ke, node$id)], 
+                              yend = node$y[match(ke, node$id)]), 
+             arrow = arrow(type = "closed", length = unit(0.25, "cm")), 
+             curvature = 0.2, color = "darkgreen", size = 0.8) +
+  
+  # Tambahkan label edge dengan posisi lebih baik
+  geom_text(data = edge, aes(x = (node$x[match(dari, node$id)] + node$x[match(ke, node$id)]) / 2, 
+                             y = (node$y[match(dari, node$id)] + node$y[match(ke, node$id)]) / 2 + nudge_y, 
+                             label = label), 
+            color = "darkred", size = 4, fontface = "italic") +
+  
+  # Tambahkan node
+  geom_point(data = node, aes(x = x, y = y), size = 12, shape = 21, fill = "lightgreen", color = "darkgreen") +
+  
+  # Tambahkan label node dengan repelling untuk menghindari tumpang tindih
+  geom_text_repel(data = node, aes(x = x, y = y, label = id), 
+                  color = "black", size = 6, fontface = "bold", box.padding = 0.5) +
+  
+  # Sesuaikan tema plot
+  theme_minimal(base_size = 20) +
+  theme(axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank()) +
+  coord_fixed()
+
+# Tampilkan plot
+print(plot)
