@@ -22,7 +22,7 @@ ggplot() +
   # Annotate the overlapping area
   annotate("text", x = 0.75, y = 0.5, label = "Pemecahan Masalah\nLogika & Analisis", size = 5, fontface = "bold") +
   # Annotate individual areas
-  annotate("text", x = -0.7, y = 0.5, label = "Kemampuan Kognitif\nBerpikir Runtut\nAutomasi\nTeroganisir", size = 5) +
+  annotate("text", x = -0.7, y = 0.5, label = "Kemampuan Kognitif\nBerpikir Runtut\nTeroganisir", size = 5) +
   annotate("text", x = 2.4, y = 0.5, label = "Kreativitas\nEvaluasi\nSosial\nEkonomi\nEtika", size = 5) +
   # Style the plot
   scale_fill_manual(values = c("skyblue", "lightgreen")) +
